@@ -17,13 +17,15 @@ class HashTable:
     # previously associated with `key`.
     # Note: Neither `key` nor `value` may be None (an exception will be raised)
     def insert(self, key, value):
+
         # check loading factor, if over, resize
-        if self.load_factor <= self.item_count / self.array_size:
+
+        if self.load_factor <= (self.item_count / self.array_size):
             self._resize_array()
         
         # hash the key  
         hash_ind = cs5112_hash1(key) % self.array_size
-
+        
         # loop until an empty index found
         while self.array.get(hash_ind) != None and self.array.get(hash_ind) != 'removed':
             
@@ -57,7 +59,7 @@ class HashTable:
 
                 # if you hash and get back the key
                 if elem[0] == key:  # check key in tuple
-                    return elem[1]. # second entry is value
+                    return elem[1] # second entry is value
 
             # get hash of next index
             hash_ind = (hash_ind + 1) % self.array_size            
@@ -98,22 +100,52 @@ class HashTable:
     # Internal helper function for resizing the hash table's array once the ratio
     # of stored mappings to array size exceeds the specified load factor.
     def _resize_array(self):
-        
-        # make new array
-        new_array = FixedSizeArray(self.array_size * 2)
-        
+
+        # store old array here temp.
+        temp = []
+
         # loop through old array
         for ind in range(self.array_size):
-            # if entry is not empty, reinsert it into new array
+            # if entry is not empty, save it in temp
             if self.array.get(ind) and self.array.get(ind) != 'removed':
                 key, value = self.array.get(ind)  # retrieve the elem
-                self.insert(key, value)  # reinsert the elem in the new array
+                temp.append((key, value))
+        
+        self.array_size *= 2  # double size
+        self.item_count = 0  # reset count to 0
+        
+        # make new array
+        self.array = FixedSizeArray(self.array_size)   
 
-        # set orig array to the new array
-        self.array = new_array
-        self.array_size *= 2
+        # loop through temp array and reinsert into new array
+        for elem in temp:
+            key, value = elem # unpack it
+            self.insert(key, value)
 
     # Internal helper function for accessing the array underlying the hash table.
     def _get_array(self):
         # DO NOT EDIT THIS METHOD
         return self.array
+
+ht = HashTable(3, 0.6)
+print('array size', ht.array_size)
+print('item count', ht.item_count)
+ht.insert("fat", "dog")
+print('array size', ht.array_size)
+print('item count', ht.item_count)
+ht.insert("lazy", "cat")
+print('array size', ht.array_size)
+print('item count', ht.item_count)
+ht.insert("dude", "bird")
+print('array size', ht.array_size)
+print('item count', ht.item_count)
+ht.remove('dude')
+print('array size', ht.array_size)
+print('item count', ht.item_count)
+ht.remove('fat')
+print('array size', ht.array_size)
+print('item count', ht.item_count)
+
+
+
+
