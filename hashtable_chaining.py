@@ -10,7 +10,7 @@ class SLLNode:
         self.next_node = next_node
 
     def set_next(self, node):
-     self.next_node = node
+        self.next_node = node
 
     def get_next(self):
         return self.next_node
@@ -36,6 +36,9 @@ class HashTable:
     # previously associated with `key`.
     # Note: Neither `key` nor `value` may be None (an exception will be raised)
     def insert(self, key, value):
+
+        if self.load_factor <= (self.item_count / self.array_size):
+            self._resize_array()
 
         # create a new SLL node
         new_node = SLLNode((key, value))  # pass tuple as value
@@ -74,10 +77,6 @@ class HashTable:
         hash_id = cs5112_hash1(key) % self.array_size
         curr_node = self.array.get(hash_id)
 
-        # if elem is empty, return None right away
-        if not curr_node:
-            return None
-
         # loop until the end
         while curr_node:
 
@@ -97,8 +96,10 @@ class HashTable:
     def remove(self, key):
         
         hash_id = cs5112_hash1(key) % self.array_size
-        curr_node = self.array.get(hash_id)
+        front_node = self.array.get(hash_id)
+        curr_node = front_node
         prev_node = None
+        saved_value = None
 
         # if empty, return None
         if not curr_node:
@@ -107,22 +108,26 @@ class HashTable:
         # otherwise, loop until elem is found, and set the prev next node to curr's next node
         while curr_node:
 
-            node_key, node_value = curr_node.get_value()
+            node_key, node_value = curr_node.get_value()  # unpack the value
 
+            # check if keys match
             if node_key == key:
 
-                # only 1 item, set the elem array to None
-                if self.item_count == 1:
-                    self.array.set(hash_id, None)
-                # otherwise skip the current elem
-                else:
-                    prev.set_next = curr_node.get_next
-            
-                self.item_count -= 1
+                # if prev, then item not in the front
+                if prev_node:
+                    prev_node.set_next(curr_node.get_next())  # 
 
-            prev = curr_node
+                else:  # item is in the front, so set hash elem to the elem after curr node
+                    self.array.set(hash_id, curr_node.get_next())
+
+                self.item_count -= 1  # decrement count
+                return node_value # return saved value
+
+            # update pointers
+            prev_node = curr_node
             curr_node = curr_node.get_next()
 
+        return None  # not found if reaches here
 
     # Returns the number of elements in the hash table.
     def size(self):
@@ -131,32 +136,61 @@ class HashTable:
     # Internal helper function for resizing the hash table's array once the ratio
     # of stored mappings to array size exceeds the specified load factor.
     def _resize_array(self):
-        # YOUR CODE HERE
-        raise NotImplementedError()
 
+        new_array = FixedSizeArray(self.array_size * 2)
+
+        print('resize called, _resize_array size is:', new_array.size)
+
+        temp_array = []
+        
+        # loop through fixed array current elems
+        for elem in self.array.items:
+            
+            # temporarily store all elements into list
+            if elem:
+                temp_array.append(elem)
+        
+        self.array = new_array  # set array to new empty array
+        self.array_size = self.array_size * 2  # set new size variable
+        self.item_count = 0  # reset item count
+
+        # reinsert each elem in temp array into new FixedSizedArray
+        for elem in temp_array:
+
+            # need to loop through entire linked list and reinsert each node
+            while elem:
+
+                key, value = elem.get_value()  # retrieve the tuple
+                self.insert(key, value)  # insert into new array
+                elem = elem.get_next()
+ 
     # Internal helper function for accessing the array underlying the hash table.
     def _get_array(self):
         # DO NOT EDIT THIS FUNCTION
         return self.array
 
-ht = HashTable(3, 0.75)
-print('array size', ht.array_size)
-print('item count', ht.item_count)
-ht.insert("fat", "dog")
-print('array size', ht.array_size)
-print('item count', ht.item_count)
-ht.insert("lazy", "cat")
-print('array size', ht.array_size)
-print('item count', ht.item_count)
-ht.insert("dude", "bird")
-print('array size', ht.array_size)
-print('item count', ht.item_count)
+# ht = HashTable(3, 0.50)
+# print('inserting fat, dog:')
+# ht.insert("fat", "dog")
+# print('array size', ht.array_size)
+# print('item count', ht.item_count)
 
-ht.remove('dude')
-print('array size', ht.array_size)
-print('item count', ht.item_count)
-print(ht.get_value('dude'))
+# print('inserting lazy, cat:')
+# ht.insert("lazy", "cat")
+# print('array size', ht.array_size)
+# print('item count', ht.item_count)
 
-# ht.remove('fat')
+# print('inserting small, bird:')
+# ht.insert("small", "bird")
+# print('array size', ht.array_size)
+# print('item count', ht.item_count)
+
+# print('inserting big, giraffe:')
+# ht.insert("big", "giraffe")
+# print('array size', ht.array_size)
+# print('item count', ht.item_count)
+
+# print('inserting smelly, fish:')
+# ht.insert("smelly", "fish")
 # print('array size', ht.array_size)
 # print('item count', ht.item_count)
