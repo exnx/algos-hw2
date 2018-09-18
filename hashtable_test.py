@@ -4,10 +4,9 @@
 from hashtable_chaining import HashTable as HashTableChaining
 from hashtable_linear_probing import HashTable as HashTableProbing
 
-# for (name, HashTable) in [("chaining", HashTableChaining), ("linear probing", HashTableProbing)]:
-# replace line below with this when done implementing chaining hash table
+# print('hello')
 
-for (name, HashTable) in [("linear probing", HashTableProbing)]:
+for (name, HashTable) in [("chaining", HashTableChaining), ("linear probing", HashTableProbing)]:
     table = HashTable()
     table.insert("example_key", "example_value")
     if table.get("example_key") != "example_value":

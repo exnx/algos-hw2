@@ -137,11 +137,10 @@ class HashTable:
     # of stored mappings to array size exceeds the specified load factor.
     def _resize_array(self):
 
+        # create new array
         new_array = FixedSizeArray(self.array_size * 2)
 
-        print('resize called, _resize_array size is:', new_array.size)
-
-        temp_array = []
+        temp_array = []  # temp array
         
         # loop through fixed array current elems
         for elem in self.array.items:
